@@ -1,3 +1,247 @@
+# Promt 0
+programá un tetris con html, css y javascript
+
+## Tetris Game Implementation
+
+I'll create a complete Tetris game implementation using HTML, CSS, and JavaScript. Here are the files:
+
+```html
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-info">
+            <h1>TETRIS</h1>
+            <div class="score-container">
+                <p>Score: <span id="score">0</span></p>
+                <p>Lines: <span id="lines">0</span></p>
+                <p>Level: <span id="level">1</span></p>
+            </div>
+            <div class="next-piece-container">
+                <p>Next Piece:</p>
+                <div class="next-piece-preview" id="next-piece"></div>
+            </div>
+            <div class="controls-info">
+                <p>Controls:</p>
+                <ul>
+                    <li>← → : Move</li>
+                    <li>↑ : Rotate</li>
+                    <li>↓ : Soft Drop</li>
+                    <li>Space : Hard Drop</li>
+                    <li>P : Pause</li>
+                </ul>
+            </div>
+            <button id="start-button">Start / Pause</button>
+        </div>
+        <div class="game-board-container">
+            <div class="game-board" id="board"></div>
+        </div>
+    </div>
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2>Game Over!</h2>
+            <p>Your score: <span id="final-score"></span></p>
+            <button id="restart-button">Play Again</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+```
+
+```css
+/* style.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+}
+
+.game-info {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.game-info h1 {
+    text-align: center;
+    color: #e74c3c;
+    letter-spacing: 3px;
+}
+
+.score-container {
+    background-color: #34495e;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.score-container p {
+    margin: 5px 0;
+}
+
+.next-piece-container {
+    background-color: #34495e;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.next-piece-preview {
+    height: 80px;
+    margin-top: 10px;
+    background-color: #2c3e50;
+    position: relative;
+}
+
+.controls-info {
+    background-color: #34495e;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.controls-info ul {
+    list-style-type: none;
+    margin-top: 5px;
+}
+
+.controls-info li {
+    margin-bottom: 3px;
+}
+
+button {
+    padding: 10px;
+    background-color: #e74c3c;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #c0392b;
+}
+
+.game-board-container {
+    border: 2px solid #7f8c8d;
+    border-radius: 5px;
+    padding: 2px;
+    background-color: #34495e;
+}
+
+.game-board {
+    width: 300px;
+    height: 600px;
+    display: grid;
+    grid-template-rows: repeat(20, 1fr);
+    grid-template-columns: repeat(10, 1fr);
+    background-color: #2c3e50;
+    gap: 1px;
+}
+
+.cell {
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+}
+
+.tetromino {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.preview {
+    opacity: 0.5;
+}
+
+/* Tetromino Colors */
+.I {
+    background-color: #00f0f0;
+}
+
+.O {
+    background-color: #f0f000;
+}
+
+.T {
+    background-color: #a000f0;
+}
+
+.S {
+    background-color: #00f000;
+}
+
+.Z {
+    background-color: #f00000;
+}
+
+.J {
+    background-color: #0000f0;
+}
+
+.L {
+    background-color: #f0a000;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #34495e;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+}
+
+.modal-content h2 {
+    margin-bottom: 15px;
+    color: #e74c3c;
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+}
+
+#restart-button {
+    width: 100%;
+}
+```
+
+```javascript
+// script.js
 document.addEventListener('DOMContentLoaded', () => {
     // Game configurations
     const BOARD_WIDTH = 10;
@@ -85,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isGameOver = false;
     let currentPiece;
     let nextPiece;
+    let ghostPiece;
     let dropSpeed = 1000; // Initial drop speed in ms
 
     // Create game board grid
@@ -144,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Draw a tetromino on the board
-    function drawTetromino(tetromino) {
+    function drawTetromino(tetromino, isGhost = false) {
         for (let row = 0; row < tetromino.shape.length; row++) {
             for (let col = 0; col < tetromino.shape[row].length; col++) {
                 if (tetromino.shape[row][col]) {
@@ -154,6 +399,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (cellRow >= 0 && cellRow < BOARD_HEIGHT && cellCol >= 0 && cellCol < BOARD_WIDTH) {
                         const cell = document.querySelector(`.game-board .cell[data-row="${cellRow}"][data-col="${cellCol}"]`);
                         cell.classList.add('tetromino', tetromino.color);
+                        if (isGhost) {
+                            cell.classList.add('preview');
+                        }
                     }
                 }
             }
@@ -227,11 +475,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    // Update ghost piece (preview of where the piece will land)
+    function updateGhostPiece() {
+        // Clear previous ghost
+        if (ghostPiece) {
+            clearTetromino(ghostPiece);
+        }
+        
+        // Create a deep copy of the current piece
+        ghostPiece = {
+            ...currentPiece,
+            shape: JSON.parse(JSON.stringify(currentPiece.shape))
+        };
+        
+        // Drop the ghost piece as far down as it can go
+        while (isValidMove({ ...ghostPiece, row: ghostPiece.row + 1 })) {
+            ghostPiece.row++;
+        }
+        
+        // Only draw if the ghost is in a different position than the current piece
+        if (ghostPiece.row !== currentPiece.row) {
+            drawTetromino(ghostPiece, true);
+        }
+    }
+
     // Move the current tetromino
     function moveTetromino(direction) {
         if (isPaused || isGameOver) return;
 
         clearTetromino(currentPiece);
+        if (ghostPiece) clearTetromino(ghostPiece);
         
         const newPosition = { ...currentPiece };
         
@@ -249,12 +522,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (isValidMove(newPosition)) {
             currentPiece = newPosition;
+            updateGhostPiece();
             drawTetromino(currentPiece);
         } else if (direction === 'down') {
             // If we can't move down, lock the piece
             lockPiece();
         } else {
             // If we can't move left or right, just redraw
+            updateGhostPiece();
             drawTetromino(currentPiece);
         }
     }
@@ -264,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPaused || isGameOver) return;
 
         clearTetromino(currentPiece);
+        if (ghostPiece) clearTetromino(ghostPiece);
         
         // Drop the piece as far down as it can go
         while (isValidMove({ ...currentPiece, row: currentPiece.row + 1 })) {
@@ -281,6 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPaused || isGameOver) return;
 
         clearTetromino(currentPiece);
+        if (ghostPiece) clearTetromino(ghostPiece);
         
         const rotated = {
             ...currentPiece,
@@ -307,6 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        updateGhostPiece();
         drawTetromino(currentPiece);
     }
 
@@ -343,9 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        
-        // Redibujar el tablero siempre después de bloquear una pieza
-        redrawBoard();
         
         // Check for completed lines
         checkForLines();
@@ -417,6 +692,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        updateGhostPiece();
         drawTetromino(currentPiece);
     }
 
@@ -492,9 +768,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start the game loop
         clearInterval(gameInterval);
         gameInterval = setInterval(gameLoop, dropSpeed);
-
-        // Focus the board at game start
-        board.focus();
     }
 
     // Toggle pause
@@ -510,9 +783,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeBoard();
         initializeNextPiecePreview();
         
-        // Make the board focusable
-        board.setAttribute('tabindex', '0');
-        
         // Event listeners
         document.addEventListener('keydown', e => {
             if (isGameOver) return;
@@ -520,35 +790,24 @@ document.addEventListener('DOMContentLoaded', () => {
             switch (e.key) {
                 case 'ArrowLeft':
                     moveTetromino('left');
-                    e.preventDefault();
                     break;
                 case 'ArrowRight':
                     moveTetromino('right');
-                    e.preventDefault();
                     break;
                 case 'ArrowDown':
                     moveTetromino('down');
-                    e.preventDefault();
                     break;
                 case 'ArrowUp':
                     rotateTetromino();
-                    e.preventDefault();
                     break;
                 case ' ':
                     hardDrop();
-                    e.preventDefault(); // Prevent page scrolling
                     break;
                 case 'p':
                 case 'P':
                     togglePause();
-                    e.preventDefault();
                     break;
             }
-        });
-        
-        // Focus the board when clicked
-        board.addEventListener('click', () => {
-            board.focus();
         });
         
         startButton.addEventListener('click', () => {
@@ -557,17 +816,39 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 togglePause();
             }
-            // Focus the board after starting or pausing
-            board.focus();
         });
         
-        restartButton.addEventListener('click', () => {
-            startGame();
-            // Focus the board after restarting
-            board.focus();
-        });
+        restartButton.addEventListener('click', startGame);
     }
 
     // Start the game initialization
     initialize();
 });
+```
+
+### How to Use
+
+1. Create three files: `index.html`, `style.css`, and `script.js` with the code provided above.
+
+2. Open the `index.html` file in your web browser.
+
+3. Click the "Start / Pause" button to begin the game.
+
+4. Use the following controls:
+   - Left/Right Arrow: Move piece horizontally
+   - Up Arrow: Rotate piece
+   - Down Arrow: Soft drop (faster descent)
+   - Space: Hard drop (instant placement)
+   - P: Pause/Resume game
+
+The game features:
+- Score tracking
+- Level progression (speed increases)
+- Next piece preview
+- Ghost piece to show where the current piece will land
+- Game over detection with restart option
+
+Enjoy playing your Tetris game!
+
+### Testing comments
+- Esta versión del juego no funcionaba correctamente porque las piezas no se apilaban.

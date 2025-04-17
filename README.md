@@ -1,6 +1,4 @@
-Collecting workspace information# Tetris Game
-
-A classic Tetris game implementation using HTML, CSS, and JavaScript.
+# A classic Tetris game implementation using HTML, CSS, and JavaScript.
 
 ## Description
 

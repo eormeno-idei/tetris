@@ -86,6 +86,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPiece;
     let nextPiece;
     let dropSpeed = 1000; // Initial drop speed in ms
+    
+    // Create audio element for row clear sound
+    const lineClearSound = new Audio();
+    lineClearSound.src = 'sounds/line-clear.wav'; // Make sure this file exists in your project
+    lineClearSound.volume = 0.5; // Adjust volume as needed
 
     // Create game board grid
     function createGrid() {
@@ -373,9 +378,27 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update score based on lines cleared
         if (linesCleared > 0) {
+            // Play sound when lines are cleared
+            playLineClearSound(linesCleared);
+            
             updateLines(linesCleared);
             redrawBoard();
         }
+    }
+    
+    // Play line clear sound
+    function playLineClearSound(linesCleared) {
+        // Clone and play the sound to allow overlapping sounds
+        const sound = lineClearSound.cloneNode();
+        
+        // Adjust sound for tetris (4 lines at once)
+        if (linesCleared === 4) {
+            sound.volume = 0.7; // Make tetris sound slightly louder
+        }
+        
+        sound.play().catch(error => {
+            console.log("Audio couldn't play. This may be due to browser autoplay policies.", error);
+        });
     }
 
     // Redraw the entire board based on the grid state

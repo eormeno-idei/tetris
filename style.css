@@ -145,6 +145,10 @@ button:hover {
     background-color: #f0a000;
 }
 
+.C {
+    background-color: #f0a0d1;
+}
+
 .modal {
     display: none;
     position: fixed;

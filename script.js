@@ -1,67 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Game configurations
-    const BOARD_WIDTH = 10;
-    const BOARD_HEIGHT = 20;
+    const BOARD_WIDTH = 20;
+    const BOARD_HEIGHT = 15;
     const CELL_SIZE = 30;
 
     // Tetromino shapes and their rotations
     const TETROMINOES = {
-        I: {
-            shape: [
-                [0, 0, 0, 0],
-                [1, 1, 1, 1],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0]
-            ],
-            color: 'I'
-        },
-        O: {
-            shape: [
-                [1, 1],
-                [1, 1]
-            ],
-            color: 'O'
-        },
-        T: {
-            shape: [
-                [0, 1, 0],
-                [1, 1, 1],
-                [0, 0, 0]
-            ],
-            color: 'T'
-        },
-        S: {
-            shape: [
-                [0, 1, 1],
-                [1, 1, 0],
-                [0, 0, 0]
-            ],
-            color: 'S'
-        },
-        Z: {
-            shape: [
-                [1, 1, 0],
-                [0, 1, 1],
-                [0, 0, 0]
-            ],
-            color: 'Z'
-        },
-        J: {
-            shape: [
-                [1, 0, 0],
-                [1, 1, 1],
-                [0, 0, 0]
-            ],
-            color: 'J'
-        },
-        L: {
-            shape: [
-                [0, 0, 1],
-                [1, 1, 1],
-                [0, 0, 0]
-            ],
-            color: 'L'
-        },
         C: {
             shape: [
                 [1],
@@ -75,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreElement = document.getElementById('score');
     const linesElement = document.getElementById('lines');
     const levelElement = document.getElementById('level');
-    const nextPieceElement = document.getElementById('next-piece');
     const startButton = document.getElementById('start-button');
     const gameOverModal = document.getElementById('game-over-modal');
     const finalScoreElement = document.getElementById('final-score');
@@ -90,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPaused = false;
     let isGameOver = false;
     let currentPiece;
-    let nextPiece;
     let referenceSpeed = 500; // Reference speed for level calculation
     let speedIncrement = 100; // Speed increment per level
     let dropSpeed = referenceSpeed; // Initial drop speed in ms
@@ -135,23 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Initialize the next piece preview UI
-    function initializeNextPiecePreview() {
-        nextPieceElement.style.display = 'grid';
-        nextPieceElement.style.gridTemplateRows = `repeat(4, 20px)`;
-        nextPieceElement.style.gridTemplateColumns = `repeat(4, 20px)`;
-
-        for (let row = 0; row < 4; row++) {
-            for (let col = 0; col < 4; col++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.row = row;
-                cell.dataset.col = col;
-                nextPieceElement.appendChild(cell);
-            }
-        }
-    }
-
     // Get a random tetromino
     function getRandomTetromino() {
         const tetrominoNames = Object.keys(TETROMINOES);
@@ -176,33 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (cellRow >= 0 && cellRow < BOARD_HEIGHT && cellCol >= 0 && cellCol < BOARD_WIDTH) {
                         const cell = document.querySelector(`.game-board .cell[data-row="${cellRow}"][data-col="${cellCol}"]`);
                         cell.classList.add('tetromino', tetromino.color);
-                    }
-                }
-            }
-        }
-    }
-
-    // Draw next piece preview
-    function drawNextPiecePreview() {
-        // Clear previous preview
-        const previewCells = nextPieceElement.querySelectorAll('.cell');
-        previewCells.forEach(cell => {
-            cell.className = 'cell';
-        });
-
-        // Center the tetromino in the preview
-        const offsetRow = Math.floor((4 - nextPiece.shape.length) / 2);
-        const offsetCol = Math.floor((4 - nextPiece.shape[0].length) / 2);
-
-        // Draw next piece
-        for (let row = 0; row < nextPiece.shape.length; row++) {
-            for (let col = 0; col < nextPiece.shape[row].length; col++) {
-                if (nextPiece.shape[row][col]) {
-                    const previewRow = offsetRow + row;
-                    const previewCol = offsetCol + col;
-                    const cell = nextPieceElement.querySelector(`.cell[data-row="${previewRow}"][data-col="${previewCol}"]`);
-                    if (cell) {
-                        cell.classList.add('tetromino', nextPiece.color);
                     }
                 }
             }
@@ -433,18 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Spawn a new tetromino
     function spawnNewPiece() {
-        if (nextPiece) {
-            currentPiece = {
-                ...nextPiece,
-                row: 0,
-                col: Math.floor((BOARD_WIDTH - nextPiece.shape[0].length) / 2)
-            };
-        } else {
-            currentPiece = getRandomTetromino();
-        }
-
-        nextPiece = getRandomTetromino();
-        drawNextPiecePreview();
+        currentPiece = getRandomTetromino();
 
         // Check if game over (can't place new piece)
         if (!isValidMove(currentPiece)) {
@@ -524,9 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         redrawBoard();
         gameOverModal.style.display = 'none';
 
-        // Initialize new pieces
-        nextPiece = getRandomTetromino();
-        drawNextPiecePreview();
+        // Initialize new piece and start the game
         spawnNewPiece();
 
         // Start the game loop
@@ -548,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the game
     function initialize() {
         initializeBoard();
-        initializeNextPiecePreview();
 
         // Make the board focusable
         board.setAttribute('tabindex', '0');

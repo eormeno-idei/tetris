@@ -95,10 +95,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let speedIncrement = 100; // Speed increment per level
     let dropSpeed = referenceSpeed; // Initial drop speed in ms
 
-    // Create audio element for row clear sound
+    // Create audio elements for row clear sounds
     const lineClearSound = new Audio();
-    lineClearSound.src = 'sounds/line-clear.wav'; // Make sure this file exists in your project
+    lineClearSound.src = 'sounds/mixkit-winning-a-coin-video-game-2069.wav';
     lineClearSound.volume = 0.5; // Adjust volume as needed
+
+    const tetrisSound = new Audio();
+    tetrisSound.src = 'sounds/mixkit-game-bonus-reached-2065.wav';
+    tetrisSound.volume = 0.6; // Slightly louder for the special tetris clear
+
+    // Create game over sound
+    const gameOverSound = new Audio();
+    gameOverSound.src = 'sounds/mixkit-funny-fail-low-tone-2876.wav';
+    gameOverSound.volume = 0.7; // Adjust volume as needed
 
     // Create game board grid
     function createGrid() {
@@ -396,13 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Play line clear sound
     function playLineClearSound(linesCleared) {
-        // Clone and play the sound to allow overlapping sounds
-        const sound = lineClearSound.cloneNode();
-
-        // Adjust sound for tetris (4 lines at once)
-        if (linesCleared === 4) {
-            sound.volume = 0.7; // Make tetris sound slightly louder
-        }
+        // Use tetris sound for 4 lines, regular sound for 1-3 lines
+        const sound = linesCleared === 4 ? tetrisSound.cloneNode() : lineClearSound.cloneNode();
 
         sound.play().catch(error => {
             console.log("Audio couldn't play. This may be due to browser autoplay policies.", error);
@@ -493,6 +497,11 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(gameInterval);
         finalScoreElement.textContent = score;
         gameOverModal.style.display = 'flex';
+        
+        // Play game over sound
+        gameOverSound.play().catch(error => {
+            console.log("Game over audio couldn't play. This may be due to browser autoplay policies.", error);
+        });
     }
 
     // Start/reset the game

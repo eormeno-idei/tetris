@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Evitar procesar múltiples veces
         if (isGameOver) return;
         
-        console.log("¡Personaje aplastado!");
+        // console.log("¡Personaje aplastado!");
         
         // Marcar el juego como terminado inmediatamente para evitar múltiples llamadas
         isGameOver = true;
@@ -1216,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Verificar si hay una caja en la posición actual del jugador
         if (grid[player.row] && grid[player.row][player.col] === 'C') {
-            console.log("COLISIÓN DETECTADA: Jugador y caja en la misma posición", player.row, player.col);
+            // console.log("COLISIÓN DETECTADA: Jugador y caja en la misma posición", player.row, player.col);
             crushPlayer();
         }
     }

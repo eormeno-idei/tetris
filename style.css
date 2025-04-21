@@ -1,3 +1,6 @@
+/* Importar fuentes gratuitas de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Roboto:wght@400;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -5,9 +8,9 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #2c3e50;
-    color: #ecf0f1;
+    font-family: 'Roboto', sans-serif;
+    background-color: #1a1c2c; /* Fondo oscuro con tono azulado */
+    color: #f4f4f4;
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -27,38 +30,51 @@ body {
 }
 
 .game-info h1 {
+    font-family: 'Pixelify Sans', cursive; /* Fuente pixelada para el título */
     text-align: center;
-    color: #e74c3c;
+    color: #ff9e4b; /* Naranja cálido */
     letter-spacing: 3px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-size: 28px;
 }
 
 .score-container {
-    background-color: #34495e;
+    background-color: #3f3f74; /* Fondo morado oscuro */
     padding: 10px;
     border-radius: 5px;
+    border: 2px solid #5d5d8c;
 }
 
 .score-container p {
     margin: 5px 0;
+    font-family: 'Pixelify Sans', cursive;
 }
 
 .next-piece-container {
-    background-color: #34495e;
+    background-color: #3f3f74;
     padding: 10px;
     border-radius: 5px;
+    border: 2px solid #5d5d8c;
 }
 
 .next-piece-preview {
     height: 80px;
     margin-top: 10px;
-    background-color: #2c3e50;
+    background-color: #2c2a4a;
     position: relative;
 }
 
 .controls-info {
-    background-color: #34495e;
+    background-color: #3f3f74;
     padding: 10px;
     border-radius: 5px;
+    border: 2px solid #5d5d8c;
+}
+
+.controls-info p {
+    font-family: 'Pixelify Sans', cursive;
+    margin-bottom: 5px;
+    color: #ff9e4b;
 }
 
 .controls-info ul {
@@ -72,33 +88,42 @@ body {
 
 button {
     padding: 10px;
-    background-color: #e74c3c;
+    background-color: #ff9e4b;
     border: none;
     border-radius: 5px;
-    color: white;
+    color: #1a1c2c;
     font-weight: bold;
+    font-family: 'Pixelify Sans', cursive;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 3px 0 #e57c21;
 }
 
 button:hover {
-    background-color: #c0392b;
+    background-color: #ffc396;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 #e57c21;
 }
 
 .game-board-container {
-    border: 2px solid #7f8c8d;
+    border: 4px solid #5d5d8c;
     border-radius: 5px;
     padding: 2px;
-    background-color: #34495e;
+    background-color: #3f3f74;
+    box-shadow: 0 0 15px rgba(93, 93, 140, 0.6);
 }
 
 .game-board {
-    width: 600px;
-    height: 450px;
+    width: 360px; /* 12 columnas * 30px por celda */
+    height: 450px; /* 15 filas * 30px por celda */
     display: grid;
     grid-template-rows: repeat(15, 1fr);
-    grid-template-columns: repeat(20, 1fr);
-    background-color: #2c3e50;
+    grid-template-columns: repeat(12, 1fr);
+    background-color: #2c2a4a; /* Fondo del tablero más oscuro */
     gap: 1px;
 }
 
@@ -110,39 +135,40 @@ button:hover {
 
 .tetromino {
     border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease-in-out;
 }
 
 .preview {
     opacity: 0.5;
 }
 
-/* Tetromino Colors */
+/* Tetromino Colors - Palette más coherente con la estética del juego */
 .I {
-    background-color: #00f0f0;
+    background-color: #29adff; /* Azul claro */
 }
 
 .O {
-    background-color: #f0f000;
+    background-color: #ffea5c; /* Amarillo */
 }
 
 .T {
-    background-color: #a000f0;
+    background-color: #ef5dff; /* Púrpura */
 }
 
 .S {
-    background-color: #00f000;
+    background-color: #73ff73; /* Verde */
 }
 
 .Z {
-    background-color: #f00000;
+    background-color: #ff4f4f; /* Rojo */
 }
 
 .J {
-    background-color: #0000f0;
+    background-color: #4b6bff; /* Azul oscuro */
 }
 
 .L {
-    background-color: #f0a000;
+    background-color: #ff9e4b; /* Naranja */
 }
 
 .C {
@@ -150,6 +176,7 @@ button:hover {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
 }
 
 .modal {
@@ -166,22 +193,61 @@ button:hover {
 }
 
 .modal-content {
-    background-color: #34495e;
+    background-color: #3f3f74;
     padding: 30px;
     border-radius: 10px;
     text-align: center;
     width: 300px;
+    border: 3px solid #5d5d8c;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .modal-content h2 {
     margin-bottom: 15px;
-    color: #e74c3c;
+    color: #ff9e4b;
+    font-family: 'Pixelify Sans', cursive;
 }
 
 .modal-content p {
     margin-bottom: 20px;
+    font-family: 'Roboto', sans-serif;
 }
 
 #restart-button {
     width: 100%;
+}
+
+/* Estilos para la cuadrícula de debug */
+.debug-grid-enabled .cell {
+    border: 1px dashed rgba(255, 255, 255, 0.5);
+    position: relative;
+}
+
+.debug-grid-enabled .cell::after {
+    content: attr(data-row) ',' attr(data-col);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    pointer-events: none;
+}
+
+.debug-button {
+    padding: 10px;
+    background-color: #3f3f74;
+    border: 2px solid #ff9e4b;
+    border-radius: 5px;
+    color: #ff9e4b;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+    width: 100%;
+    font-family: 'Pixelify Sans', cursive;
+}
+
+.debug-button:hover {
+    background-color: #2c2a4a;
 }

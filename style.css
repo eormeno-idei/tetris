@@ -246,6 +246,7 @@ button:active {
     margin-top: 10px;
     width: 100%;
     font-family: 'Pixelify Sans', cursive;
+    display: none; /* Ocultar por defecto */
 }
 
 .debug-button:hover {

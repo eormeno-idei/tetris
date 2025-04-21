@@ -176,10 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePlayerSprite();
     }
 
-    // Handle player movement - optimizado para reducir cálculos redundantes
+    // Handle player movement - optimizado para incluir detección de colisiones
     function handlePlayerMovement() {
         // Verificaciones para reducir cálculos innecesarios
         if (!player || isPaused || isGameOver) return;
+        
+        // Verificar colisión inmediatamente al inicio de cada movimiento
+        checkPlayerBoxCollision();
         
         // Actualizar las posiciones objetivo basadas en la cuadrícula y la dirección actual
         const isAtHorizontalTarget = Math.abs(player.x - player.targetX) < player.speed;
@@ -212,6 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
+            
+            // Verificar colisión después de mover
+            checkPlayerBoxCollision();
         }
         
         // Actualizar las posiciones objetivo para el movimiento horizontal
@@ -228,6 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Manejar el movimiento vertical de forma independiente al horizontal
         handleVerticalMovement();
+        
+        // Verificar colisión después del movimiento vertical también
+        checkPlayerBoxCollision();
         
         updatePlayerAnimation();
     }
@@ -405,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let animatingBoxes = false;
     const boxAnimationSpeed = 300; // Velocidad de la animación de caída en milisegundos
 
-    // Función para aplicar gravedad a las cajas - versión corregida para evitar parpadeo
+    // Función para aplicar gravedad a las cajas - versión corregida para asegurar detección correcta de colisiones
     function applyGravityToBoxes() {
         if (animatingBoxes) return; // Si ya hay una animación en curso, no iniciar otra
         
@@ -427,12 +436,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             targetRow++;
                         }
                         
+                        // Verificar si caerá en la posición del jugador
+                        const willCrushPlayer = (targetRow === player.row && col === player.col);
+                        
                         // Añadir información a la lista de cajas que caerán
                         boxesInfo.push({
                             startRow: row,
                             startCol: col,
                             targetRow: targetRow,
-                            distance: targetRow - row
+                            distance: targetRow - row,
+                            willCrushPlayer: willCrushPlayer
                         });
                         
                         // Actualizar la copia del grid para futuras comprobaciones
@@ -445,6 +458,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Si no hay cajas para animar, salir
         if (boxesInfo.length === 0) return;
+        
+        // Verificar si alguna caja va a aplastar al jugador
+        const playerWillBeCrushed = boxesInfo.some(box => box.willCrushPlayer);
         
         // Iniciar la animación
         animatingBoxes = true;
@@ -494,6 +510,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Cuando termine la última animación, actualizar el tablero
             setTimeout(() => {
+                // Si el jugador será aplastado, mostrar la animación antes de actualizar el tablero
+                if (playerWillBeCrushed) {
+                    // Actualizar primero el grid para tener el estado correcto
+                    boxElements.forEach(box => {
+                        if (box.info.willCrushPlayer) {
+                            crushPlayer();
+                            return; // Una vez aplastado, no necesitamos seguir
+                        }
+                    });
+                }
+                
                 // Actualizar el grid con las nuevas posiciones
                 boxElements.forEach(box => {
                     grid[box.info.targetRow][box.info.startCol] = 'C';
@@ -503,21 +530,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Redibujar el tablero
                 redrawBoard();
                 
-                // Verificar si el jugador sigue teniendo soporte
-                checkPlayerSupport();
-                
-                // Finalizar la animación
-                animatingBoxes = false;
-                
-                // Verificar si hay más cajas que puedan caer después de esta animación
-                setTimeout(() => {
-                    if (checkForFloatingBoxes()) {
-                        applyGravityToBoxes();
+                // Si el jugador no fue aplastado, verificar si tiene soporte
+                if (!playerWillBeCrushed) {
+                    // Verificar si alguna caja ha colisionado con el jugador después de actualizar el grid
+                    if (isCellOccupied(player.row, player.col)) {
+                        crushPlayer();
+                    } else {
+                        checkPlayerSupport();
+                        
+                        // Finalizar la animación
+                        animatingBoxes = false;
+                        
+                        // Verificar si hay más cajas que puedan caer después de esta animación
+                        setTimeout(() => {
+                            if (checkForFloatingBoxes()) {
+                                applyGravityToBoxes();
+                            }
+                        }, 10);
                     }
-                }, 10);
-                
+                } else {
+                    animatingBoxes = false;
+                }
             }, boxAnimationSpeed + 50); // Añadir un pequeño margen para asegurar que todas las animaciones terminen
         });
+    }
+
+    // Función para verificar si el personaje está en una posición específica
+    function isPlayerAt(row, col) {
+        return player.row === row && player.col === col;
+    }
+    
+    // Función para manejar cuando el personaje es aplastado por una caja - versión mejorada
+    function crushPlayer() {
+        // Evitar procesar múltiples veces
+        if (isGameOver) return;
+        
+        console.log("¡Personaje aplastado!");
+        
+        // Marcar el juego como terminado inmediatamente para evitar múltiples llamadas
+        isGameOver = true;
+        
+        // Cambiar la animación del personaje a "aplastado"
+        player.currentAnimation = PLAYER_ANIMATIONS.SQUASHED;
+        player.currentFrame = 0; // Reiniciar el frame de animación
+        updatePlayerSprite();
+        
+        // Asegurar que el personaje se muestre en la posición correcta
+        playerElement.style.zIndex = '20'; // Asegurarse de que el jugador sea visible sobre la caja
+        
+        // Reproducir sonido de game over
+        gameOverSound.play().catch(error => {
+            console.log("Game over audio couldn't play. This may be due to browser autoplay policies.", error);
+        });
+        
+        // Esperar un momento para mostrar la animación antes de terminar el juego
+        setTimeout(() => {
+            // Mostrar el modal de game over
+            finalScoreElement.textContent = score;
+            gameOverModal.style.display = 'flex';
+        }, 1000);
     }
 
     // Verificar si hay cajas flotantes que necesitan caer
@@ -543,6 +614,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 player.velocityY = 1; // Velocidad inicial pequeña para caída
             }
         }
+    }
+
+    // Función para actualizar el grid después de mover una caja o generar una nueva pieza
+    function updateGridAndCheckPlayerCollision() {
+        // Verificar si hay una caja en la misma posición que el personaje
+        if (isCellOccupied(player.row, player.col)) {
+            // El personaje está en la misma celda que una caja
+            crushPlayer();
+            return true;
+        }
+        return false;
     }
 
     // Create game board grid
@@ -876,7 +958,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Variables para el control de tiempo y nivel
     let levelTimer = 0;
-    const levelUpInterval = 15000; // 15 segundos en milisegundos
+    const levelUpInterval = 20000; // 20 segundos en milisegundos
 
     // Función para actualizar el nivel basado en el tiempo
     function updateLevel() {
@@ -1118,10 +1200,25 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!isPaused && !isGameOver) {
                 handlePlayerMovement();
+                
+                // Comprobar colisión directamente aquí, en cada frame
+                checkPlayerBoxCollision();
             }
         }
         
         requestAnimationFrame(animationLoop);
+    }
+    
+    // Nueva función para verificar si el jugador y una caja ocupan la misma celda
+    function checkPlayerBoxCollision() {
+        // Si ya estamos en game over, no seguir comprobando
+        if (isGameOver) return;
+        
+        // Verificar si hay una caja en la posición actual del jugador
+        if (grid[player.row] && grid[player.row][player.col] === 'C') {
+            console.log("COLISIÓN DETECTADA: Jugador y caja en la misma posición", player.row, player.col);
+            crushPlayer();
+        }
     }
 
     // Start the game initialization
